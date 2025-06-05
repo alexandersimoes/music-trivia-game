@@ -7,7 +7,7 @@ export const GENRES = [
   { id: "classical", name: "Classical", emoji: "🎻", color: "from-purple-500 to-pink-500", deezerGenreId: 98 },
   { id: "mbp", name: "MPB", emoji: "🇧🇷", color: "from-green-600 to-yellow-500", customApi: "/api/mbp/songs" },
   { id: "indie-rock", name: "Indie Rock", emoji: "🎨", color: "from-orange-500 to-red-600", customApi: "/api/indie-rock/songs" },
-  { id: "country", name: "Country", emoji: "🎤", color: "from-green-500 to-yellow-500", deezerGenreId: 113 },
+  { id: "classic-country", name: "Classic Country", emoji: "🤠", color: "from-amber-600 to-orange-600", customApi: "/api/classic-country/songs" },
 ]
 
 export interface Genre {

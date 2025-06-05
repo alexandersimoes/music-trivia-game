@@ -127,37 +127,29 @@ function ResultsContent() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-white text-sm">
-              {playerName ? `Confirm initials: ${playerName}` : "Enter your initials (3 characters):"}
-            </label>
-            {!playerName ? (
-              <input
-                type="text"
-                value={playerName}
-                onChange={(e) =>
-                  setPlayerName(
-                    e.target.value
-                      .toUpperCase()
-                      .replace(/[^A-Z]/g, "")
-                      .slice(0, 10),
-                  )
-                }
-                placeholder="ABC"
-                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40"
-                maxLength={10}
-              />
-            ) : (
-              <div className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-center">
-                {playerName}
-              </div>
-            )}
+            <label className="text-white text-sm">Enter your name (up to 10 characters):</label>
+            <input
+              type="text"
+              value={playerName}
+              onChange={(e) =>
+                setPlayerName(
+                  e.target.value
+                    .replace(/[^A-Za-z]/g, "")
+                    .toUpperCase()
+                    .slice(0, 10),
+                )
+              }
+              placeholder="ABC"
+              className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40"
+              maxLength={10}
+            />
           </div>
 
           <div className="space-y-2">
             <Button className="w-full" size="lg" onClick={saveToLeaderboard} disabled={!playerName.trim()}>
               Save Score
             </Button>
-            <Link href="/">
+            <Link href="/" className="block">
               <Button
                 variant="outline"
                 className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20"

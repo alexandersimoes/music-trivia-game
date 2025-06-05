@@ -96,7 +96,7 @@ export default function GenreSelectionPage() {
           <CardDescription className="text-white/70 text-lg">{genreInfo.name} Challenge</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Link href={`/play/${genreId}/easy`}>
+          <Link href={`/play/${genreId}/easy`} className="block">
             <Button className="w-full h-auto py-6 px-6 text-left justify-start bg-green-500/20 border-green-500/40 text-white hover:bg-green-500/30 hover:border-green-500/60 transition-all duration-300">
               <div className="flex items-center gap-4">
                 <Eye className="w-8 h-8" />
@@ -109,7 +109,7 @@ export default function GenreSelectionPage() {
             </Button>
           </Link>
 
-          <Link href={`/play/${genreId}/hard`}>
+          <Link href={`/play/${genreId}/hard`} className="block">
             <Button className="w-full h-auto py-6 px-6 text-left justify-start bg-red-500/20 border-red-500/40 text-white hover:bg-red-500/30 hover:border-red-500/60 transition-all duration-300">
               <div className="flex items-center gap-4">
                 <EyeOff className="w-8 h-8" />
@@ -122,7 +122,7 @@ export default function GenreSelectionPage() {
             </Button>
           </Link>
 
-          <Link href="/">
+          <Link href="/" className="block">
             <Button
               variant="outline"
               className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20"

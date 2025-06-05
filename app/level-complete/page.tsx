@@ -132,21 +132,21 @@ function LevelCompleteContent() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-white text-sm">Enter your initials (optional):</label>
+            <label className="text-white text-sm">Enter your name (up to 10 characters):</label>
             <input
               type="text"
               value={playerName}
               onChange={(e) =>
                 setPlayerName(
                   e.target.value
+                    .replace(/[^A-Za-z]/g, "")
                     .toUpperCase()
-                    .replace(/[^A-Z]/g, "")
-                    .slice(0, 3),
+                    .slice(0, 10),
                 )
               }
               placeholder="ABC"
               className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40"
-              maxLength={3}
+              maxLength={10}
             />
             {playerName && <p className="text-white/60 text-sm">Playing as: {playerName}</p>}
           </div>

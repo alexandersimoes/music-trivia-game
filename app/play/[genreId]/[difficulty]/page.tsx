@@ -295,9 +295,31 @@ export default function GamePage() {
         setAnswerOptions(options)
 
         if (audioRef.current && nextSong.preview) {
+          // Stop and reset any currently playing audio
+          audioRef.current.pause()
+          audioRef.current.currentTime = 0
+          
+          // Set new source
           audioRef.current.src = nextSong.preview
-          audioRef.current.play().catch((e) => console.error("Error playing audio:", e))
-          setIsPlaying(true)
+          
+          // Wait a brief moment before playing to avoid race conditions
+          const playAudio = async () => {
+            try {
+              if (audioRef.current) {
+                await audioRef.current.play()
+                setIsPlaying(true)
+              }
+            } catch (error) {
+              // Silently handle play interruption errors
+              if (error.name !== 'AbortError') {
+                console.error("Error playing audio:", error)
+              }
+              setIsPlaying(false)
+            }
+          }
+          
+          // Small delay to prevent race conditions
+          setTimeout(playAudio, 100)
         }
       }
     }
@@ -347,14 +369,23 @@ export default function GamePage() {
     }, 2000)
   }
 
-  const toggleAudio = () => {
+  const toggleAudio = async () => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause()
+        setIsPlaying(false)
       } else {
-        audioRef.current.play().catch((e) => console.error("Error playing audio:", e))
+        try {
+          await audioRef.current.play()
+          setIsPlaying(true)
+        } catch (error) {
+          // Silently handle play interruption errors
+          if (error.name !== 'AbortError') {
+            console.error("Error playing audio:", error)
+          }
+          setIsPlaying(false)
+        }
       }
-      setIsPlaying(!isPlaying)
     }
   }
 

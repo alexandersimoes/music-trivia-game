@@ -31,9 +31,11 @@ export default function GamePage() {
   const [showEasyModeConfirm, setShowEasyModeConfirm] = useState(false)
   const [currentDifficulty, setCurrentDifficulty] = useState<Difficulty>(difficulty)
   const [deezerGenres, setDeezerGenres] = useState<DeezerGenre[]>([])
+  const [resultTimeLeft, setResultTimeLeft] = useState(2000)
 
   const audioRef = useRef<HTMLAudioElement>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const resultTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (genreId?.startsWith('deezer-')) {
@@ -74,6 +76,9 @@ export default function GamePage() {
       }
       if (timerRef.current) {
         clearTimeout(timerRef.current)
+      }
+      if (resultTimerRef.current) {
+        clearTimeout(resultTimerRef.current)
       }
     }
   }, [])
@@ -325,6 +330,21 @@ export default function GamePage() {
     }
   }, [currentQuestion, songs, showResult, usedArtists, usedSongIds])
 
+  // Countdown timer for result modal
+  useEffect(() => {
+    if (showResult && resultTimeLeft > 0) {
+      resultTimerRef.current = setTimeout(() => {
+        setResultTimeLeft(resultTimeLeft - 100)
+      }, 100)
+      
+      return () => {
+        if (resultTimerRef.current) {
+          clearTimeout(resultTimerRef.current)
+        }
+      }
+    }
+  }, [showResult, resultTimeLeft])
+
   const handleAnswer = (answer: string | null) => {
     if (!currentSong || showResult) return
 
@@ -335,6 +355,7 @@ export default function GamePage() {
     setSelectedAnswer(answer)
     setShowResult(true)
     setIsPlaying(false)
+    setResultTimeLeft(2000) // Reset countdown
 
     if (audioRef.current) {
       audioRef.current.pause()
@@ -542,7 +563,7 @@ export default function GamePage() {
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4">
               {answerOptions.map((option) => (
                 <Button
                   key={option}
@@ -551,7 +572,7 @@ export default function GamePage() {
                   disabled={showResult}
                   onClick={() => handleAnswer(option)}
                   className={cn(
-                    "h-auto py-4 px-6 text-left justify-start bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300",
+                    "h-auto min-h-[70px] sm:min-h-[60px] py-2 sm:py-4 px-2 sm:px-6 text-left justify-start bg-white/5 border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-all duration-300",
                     showResult &&
                       option === currentSong?.artist &&
                       "bg-green-500/20 border-green-500 hover:bg-green-500/20",
@@ -561,34 +582,13 @@ export default function GamePage() {
                       "bg-red-500/20 border-red-500 hover:bg-red-500/20",
                   )}
                 >
-                  {option}
+                  <span className="block w-full text-xs sm:text-base break-words hyphens-auto leading-tight overflow-hidden">
+                    {option}
+                  </span>
                 </Button>
               ))}
             </div>
 
-            {showResult && (
-              <div
-                className={cn(
-                  "text-center p-4 rounded-lg",
-                  selectedAnswer === currentSong?.artist ? "bg-green-500/20" : "bg-red-500/20",
-                )}
-              >
-                <p
-                  className={cn(
-                    "text-lg font-semibold",
-                    selectedAnswer === currentSong?.artist ? "text-green-300" : "text-red-300",
-                  )}
-                >
-                  {selectedAnswer === currentSong?.artist ? "Correct! 🎉" : "Wrong! 😔"}
-                </p>
-                <p className="text-white/80 mt-1">
-                  The answer was: <span className="font-semibold">{currentSong?.artist}</span>
-                </p>
-                {selectedAnswer === currentSong?.artist && currentDifficulty === "hard" && (
-                  <p className="text-yellow-300 text-sm mt-1">Hard mode bonus applied! (+50%)</p>
-                )}
-              </div>
-            )}
 
             {/* Easy Mode Confirmation Modal */}
             {showEasyModeConfirm && (
@@ -623,6 +623,62 @@ export default function GamePage() {
         {/* Hidden audio element */}
         <audio ref={audioRef} />
       </div>
+
+      {/* Answer Result Modal - Full Screen Overlay */}
+      {showResult && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <Card className={cn(
+            "max-w-md w-full mx-auto backdrop-blur-sm border-2",
+            selectedAnswer === currentSong?.artist 
+              ? "bg-green-500/20 border-green-500/50" 
+              : "bg-red-500/20 border-red-500/50"
+          )}>
+            <CardHeader className="text-center pb-4">
+              <div className="text-6xl mb-4">
+                {selectedAnswer === currentSong?.artist ? "🎉" : "😔"}
+              </div>
+              <CardTitle className={cn(
+                "text-3xl font-bold",
+                selectedAnswer === currentSong?.artist ? "text-green-300" : "text-red-300",
+              )}>
+                {selectedAnswer === currentSong?.artist ? "Correct!" : "Wrong!"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <div>
+                <p className="text-white/80 text-lg">The answer was:</p>
+                <p className="text-white font-bold text-xl mt-1">{currentSong?.artist}</p>
+              </div>
+              
+              {selectedAnswer === currentSong?.artist && currentDifficulty === "hard" && (
+                <div className="bg-yellow-500/20 border border-yellow-500/40 rounded-lg p-3">
+                  <p className="text-yellow-300 font-semibold">Hard Mode Bonus!</p>
+                  <p className="text-yellow-200 text-sm">+50% score multiplier applied</p>
+                </div>
+              )}
+              
+              {selectedAnswer && selectedAnswer !== currentSong?.artist && (
+                <div className="bg-white/10 rounded-lg p-3">
+                  <p className="text-white/70 text-sm">You selected:</p>
+                  <p className="text-white/90 font-medium">{selectedAnswer}</p>
+                </div>
+              )}
+              
+              <div className="pt-4">
+                <div className="w-full bg-white/20 rounded-full h-2">
+                  <div 
+                    className="bg-blue-500 h-2 rounded-full transition-all duration-100 ease-linear"
+                    style={{ width: `${(resultTimeLeft / 2000) * 100}%` }}
+                  />
+                </div>
+                <p className="text-white/60 text-sm mt-2">
+                  Next question in {Math.ceil(resultTimeLeft / 1000)}s...
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 }

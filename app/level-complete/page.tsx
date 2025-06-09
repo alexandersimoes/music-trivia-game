@@ -57,30 +57,33 @@ function LevelCompleteContent() {
     router.push(`/play/${genreId}/${difficulty}?level=${level + 1}&score=${score}`)
   }
 
-  const saveAndExit = () => {
-    if (playerName.trim()) {
-      let genreName = ""
-      if (genreId?.startsWith('deezer-')) {
-        const deezerGenreId = parseInt(genreId.replace('deezer-', ''))
-        genreName = deezerGenres.find((g) => g.id === deezerGenreId)?.name || "Unknown Genre"
-      } else {
-        genreName = GENRES.find((g) => g.id === genreId)?.name || ""
-      }
-      
-      const newEntry = {
-        name: playerName,
-        score: score,
-        genre: genreName,
-        difficulty: difficulty,
-      }
-
-      const saved = localStorage.getItem("musicTriviaLeaderboard")
-      const currentLeaderboard = saved ? JSON.parse(saved) : []
-      const updatedLeaderboard = [...currentLeaderboard, newEntry].sort((a, b) => b.score - a.score).slice(0, 10)
-
-      localStorage.setItem("musicTriviaLeaderboard", JSON.stringify(updatedLeaderboard))
+  const saveAndViewLeaderboard = () => {
+    // Always save score if player has a name, otherwise use default name
+    const finalPlayerName = playerName.trim() || "Anonymous"
+    
+    let genreName = ""
+    if (genreId?.startsWith('deezer-')) {
+      const deezerGenreId = parseInt(genreId.replace('deezer-', ''))
+      genreName = deezerGenres.find((g) => g.id === deezerGenreId)?.name || "Unknown Genre"
+    } else {
+      genreName = GENRES.find((g) => g.id === genreId)?.name || ""
     }
-    router.push('/')
+    
+    const newEntry = {
+      name: finalPlayerName,
+      score: score,
+      genre: genreName,
+      difficulty: difficulty,
+    }
+
+    const saved = localStorage.getItem("musicTriviaLeaderboard")
+    const currentLeaderboard = saved ? JSON.parse(saved) : []
+    const updatedLeaderboard = [...currentLeaderboard, newEntry].sort((a, b) => b.score - a.score).slice(0, 10)
+
+    localStorage.setItem("musicTriviaLeaderboard", JSON.stringify(updatedLeaderboard))
+    
+    // Navigate to leaderboard
+    router.push('/leaderboard')
   }
 
   if (!genreInfo) {
@@ -132,23 +135,27 @@ function LevelCompleteContent() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-white text-sm">Enter your name (up to 10 characters):</label>
+            <label className="text-white text-sm">Enter your name for the leaderboard (optional):</label>
             <input
               type="text"
               value={playerName}
               onChange={(e) =>
                 setPlayerName(
                   e.target.value
-                    .replace(/[^A-Za-z]/g, "")
+                    .replace(/[^A-Za-z ]/g, "")
                     .toUpperCase()
                     .slice(0, 10),
                 )
               }
-              placeholder="ABC"
+              placeholder="Your Name"
               className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:border-white/40"
               maxLength={10}
             />
-            {playerName && <p className="text-white/60 text-sm">Playing as: {playerName}</p>}
+            {playerName ? (
+              <p className="text-white/60 text-sm">Submitting as: {playerName}</p>
+            ) : (
+              <p className="text-white/60 text-sm">Will submit as: Anonymous</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -167,9 +174,9 @@ function LevelCompleteContent() {
               variant="outline"
               className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20"
               size="lg"
-              onClick={saveAndExit}
+              onClick={saveAndViewLeaderboard}
             >
-              {playerName.trim() ? "Save Score & Exit" : "Back to Menu"}
+              View Leaderboard
             </Button>
           </div>
         </CardContent>

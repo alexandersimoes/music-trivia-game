@@ -134,7 +134,7 @@ function ResultsContent() {
               onChange={(e) =>
                 setPlayerName(
                   e.target.value
-                    .replace(/[^A-Za-z]/g, "")
+                    .replace(/[^A-Za-z ]/g, "")
                     .toUpperCase()
                     .slice(0, 10),
                 )
